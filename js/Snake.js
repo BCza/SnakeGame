@@ -21,13 +21,13 @@ var Snake = (function()
     /************************************************  Setters/Getters ************************************/
     
     // Color
-    getColor = function() {return this._color;};
-    setColor = function(color) {this._color = color;};
+    this.getColor = function() {return this._color;};
+    this.setColor = function(color) {this._color = color;};
 
     // Direction
     getDirection = function() {return this._color;};
-    getDirection = function() {return this._color;};
-    setDirection = function(direction) {this._direction = direction;};
+    this.getDirection = function() {return this._color;};
+    this.setDirection = function(direction) {this._direction = direction;};
 
     // Length
     getLength = function() {return this._length;};
