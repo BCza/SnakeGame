@@ -11,31 +11,27 @@ Start_Button.addEventListener("click", function(){ drawModule.init();});
         switch(keyCode) {
         
         case 37: 
-          if (direction != 'right') {
-            direction = 'left';
-          }
+          if (Players[0]._direction != EnumDir.LEFT) 
+            Players[0]._direction = EnumDir.LEFT;
           console.log('left'); 
           break;
 
         case 39:
-          if (direction != 'left') {
-          direction = 'right';
-          console.log('right');
-          }
+          if (Players[0]._direction != EnumDir.RIGHT) 
+            Players[0]._direction = EnumDir.RIGHT;
+          console.log('Right'); 
           break;
 
         case 38:
-          if (direction != 'down') {
-          direction = 'up';
-          console.log('up');
-          }
+          if (Players[0]._direction != EnumDir.UP) 
+            Players[0]._direction = EnumDir.UP;
+          console.log('UP'); 
           break;
 
         case 40:
-          if (direction != 'up') {
-          direction = 'down';
-          console.log('down');
-          }
+          if (Players[0]._direction != EnumDir.DOWN) 
+            Players[0]._direction = EnumDir.DOWN;
+          console.log('Down'); 
           break;
           }
       }

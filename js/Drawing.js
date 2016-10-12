@@ -6,7 +6,7 @@ var drawModule = (function()
         // This is the single square
         ctx.fillStyle = snake._color;
         ctx.fillRect(pt.X * snakePixelSize, pt.Y * snakePixelSize, snakePixelSize, snakePixelSize);
-        
+
         // This is the border of the square
         ctx.strokeStyle = snake._color;
         ctx.strokeRect(pt.X * snakePixelSize, pt.Y * snakePixelSize, snakePixelSize, snakePixelSize);
@@ -36,12 +36,39 @@ var drawModule = (function()
         ctx.fillText(score_text, 145, canvasHeight-5);
     }
 
+    var changeDir = function(player,direction)
+    {
+        Players[player]._direction = direction;
+    }
+
     var createSnakeBody = function(snake1) 
     {
-      for (var i = 0; i < snake1._length; i++) 
-          snake1._body.push({X:i, Y:0});
+      for (var i = snake1._length; i > 0 ; i--) 
+          snake1._body.push({X:0, Y:i});
     }
-    
+
+    var createNewTail = function(snake)
+    {
+        var newTail = {};
+        var snakeX = snake._body[snake._length-1].X;
+        var snakeY = snake._body[snake._length-1].Y;
+        switch(snake._direction)
+        {
+            case EnumDir.DOWN:
+                newTail =  {X:snakeX,Y:snakeY++};
+                break;
+            case EnumDir.UP:
+                newTail = {X:snakeX,Y:snakeY--};
+                break;
+            case EnumDir.LEFT:
+                newTail = {X:snakeX--,Y:snakeY};
+                break;
+            case EnumDir.RIGHT:
+                newTail = {X:snakeX++,Y:snakeY};
+                break;
+        }
+        snake._body.push(newTail);
+    }
     var DrawCanvas = function()
     {
         ctx.fillStyle = 'lightgrey';
@@ -50,67 +77,88 @@ var drawModule = (function()
         ctx.strokeRect(0, 0, canvasWidth, canvasHeight);
     }
 
+    var snakeHitWall = function(snake){
+        if(snake._body[0].X < 0 || snake._body[0].X > 40 || snake._body[0].Y < 0  || snake._body[0].Y > 40)
+            return true;
+        else 
+            return false;
+    }
+
+    var EndGame = function()
+    {
+        gameLoop = null;
+    }
+
     var paint = function(snake)
     {
-        var snakeX = snake._body[0].X;
-        var snakeY = snake._body[0].Y;
+        // Grab the old coordinates of the head
+        var oldHeadPosX = snake._body[0].X;
+        var oldHeadPosY = snake._body[0].Y;
 
-        if (snake._direction == EnumDir.RIGHT) {snakeX++;}
-        else if (snake._direction == EnumDir.LEFT){snakeX--;}
-        else if (snake._direction == EnumDir.UP){snakeY--;} 
-        else if(snake._direction == EnumDir.DOWN){ snakeY++;}
-
-        // If the snake hits anything
-        // if (snakeX == -1 || snakeX == canvasWidth/snakePixelSize || snakeY == -1 || snakeY == canvasHeight/snakePixelSize || checkSnakeCollision(snake, snakeY, snakeX))
-        // {
-        //     //restart game
-        //     Start_Button.removeAttribute('disabled', true);
-
-        //     // Close out current objects
-        //     ctx.clearRect(0,0,canvasWidth,canvasHeight);
-        //     gameLoop = clearInterval(gameLoop);
-
-        //     return;          
-        // }
-        
-        //TODO: Remake this function
-        // If the snake hits the food
-        if(snakeX == food.x && snakeY == food.y) 
+        // Move the head of the snake depending on the direction
+        switch(snake._direction)
         {
-            var currentlength = snake._length
-            var newTail = 
-            {
-                X:snake._body[currentlength].X + 1,
-                Y:snake._body[currentlength].Y + 1
-            }
+            case(EnumDir.RIGHT):
+                snake._body[0].X++;
+                break; 
+            case(EnumDir.LEFT):
+                snake._body[0].X--;
+                break;
+            case(EnumDir.UP):
+                snake._body[0].Y--;
+                break;
+            case(EnumDir.DOWN):
+                snake._body[0].Y++;
+                break;
+            default:
+                break;
+        }
 
-            snake._body.push(newTail);
+        // Check if it hit itself or the wall
+        if(checkSnakeCollision(snake,snake._body[0].X,snake._body[0].Y) || snakeHitWall(snake))
+        {
+             console.log("GAMEOVER");
+             Start_Button.setAttribute('disabled', false);
+             ctx.clearRect(0,0,canvasWidth,canvasHeight);
+             clearInterval(gameLoop);
+        }
 
-            score ++; //TODO: Reset Score
-            createFood(); //Create new food
-        } 
+        // Check if the snake hits the Food
+        if(checkCollision(snake._body[0].X,snake._body[0].Y,food.X,food.Y))
+        {
+            createNewTail(snake);
+            snake._length = snake._length + 1;
+            P1Score++; //TODO: Reset Score
+            createNewFood(); //Create new food
+        }
+
+        
+
+        // Have the body of the snake follow the head
+        for( var i = snake._length-1;i>1;i--)
+        {
+            snake._body[i].X = snake._body[i-1].X;
+            snake._body[i].Y = snake._body[i-1].Y;
+        }
+
+        // Move the last piece to follow the head
+        snake._body[1].X = oldHeadPosX;
+        snake._body[1].Y = oldHeadPosY;
 
        // Draw Snake and Food
        DrawCanvas();
        drawSnakeBody(snake)
        drawPizza(food.X, food.Y); 
-       
+
        // Show Updated Score
        scoreText();
     }
 
-    var createFood = function(snake1) 
-    {   
-            if (checkCollision(snake1._body[0].X,snake1._body[0].Y,food.X,food.Y)) 
-            {
-                // Create New food
-                food.x = Math.floor((Math.random() * 30) + 1);
-                food.y = Math.floor((Math.random() * 30) + 1);
-            }
-            else
-            {
-                
-            }
+    var createNewFood = function() 
+    {
+        // Create New food
+        food.X = Math.floor((Math.random() * 30) + 1);
+        food.Y = Math.floor((Math.random() * 30) + 1);
     }
 
 
@@ -118,15 +166,13 @@ var drawModule = (function()
     var checkSnakeCollision = function(snake,X,Y)
     {
         //Check for collisions with the snake itself
-        for(i=0;i<snake._length;i++)
+        for(var i=1;i<snake._length;i++)
         {
             if(checkCollision(snake._body[i].X,snake._body[i].Y,X,Y))
             {
                 return true;
             }
         }
-
-
         return false;
     }
     
@@ -140,19 +186,26 @@ var drawModule = (function()
     var init = function()
     {
         // Player Object Variables
-        var snake1 = new Snake("Blue", EnumDir.DOWN);
+        var snake1 = new Snake("Yellow", EnumDir.DOWN);
 
         // Calculate the points for the initial values
         createSnakeBody(snake1);
-        createFood(snake1);
-        
+        createNewFood();
+
+        // Push into the player array
+        Players.push(snake1);
+
         // Disable until the game ends
         Start_Button.setAttribute('disabled', true);
-        paint(snake1);
-        //gameLoop = setInterval(paint(snake1), 80);
+
+        // Start the game!
+        gameLoop = setInterval(function(){paint(snake1);}, 80);
     }
 
 
-    return {init : init};
+    return {
+        init : init,
+        changeDir:changeDir
+    };
         
 }());
