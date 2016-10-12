@@ -118,8 +118,9 @@ var drawModule = (function()
         if(checkSnakeCollision(snake,snake._body[0].X,snake._body[0].Y) || snakeHitWall(snake))
         {
              console.log("GAMEOVER");
-             Start_Button.setAttribute('disabled', false);
+             Start_Button.removeAttribute('disabled', true);
              ctx.clearRect(0,0,canvasWidth,canvasHeight);
+             Players = [];
              clearInterval(gameLoop);
         }
 
@@ -205,7 +206,6 @@ var drawModule = (function()
 
     return {
         init : init,
-        changeDir:changeDir
     };
         
 }());
