@@ -180,8 +180,7 @@ var drawModule = (function()
     // TODO: Refactor Check Collision
     var checkCollision = function(x1, y1, x2,y2) 
     {
-        if(x1 == x2 && y1 == y2) return true;
-        else return false;
+        return (x1 == x2 && y1 == y2);
     }
 
     var init = function()
